@@ -42,6 +42,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         final Tweet tweet = tweets.get(position);
         holder.name.setText(tweet.user.name);
         holder.body.setText(tweet.body);
+        holder.screenName.setText("@"+tweet.user.screenName);
         String timeDif = TimeFormatter.getTimeDifference(tweet.createdAt);
         holder.timeago.setText(timeDif);
         Glide.with(context).asBitmap().load(tweet.user.publicImageUrl).into(holder.profileImage);
@@ -77,6 +78,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         TextView body;
         TextView timeago;
         View tweetLayout;
+        TextView screenName;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileImage = itemView.findViewById(R.id.tvProfileImage);
@@ -84,6 +86,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             body = itemView.findViewById(R.id.tvBody);
             timeago = itemView.findViewById(R.id.timeago);
             tweetLayout = itemView.findViewById(R.id.tweetLayout);
+            screenName = itemView.findViewById(R.id.goWith);
         }
     }
 }
