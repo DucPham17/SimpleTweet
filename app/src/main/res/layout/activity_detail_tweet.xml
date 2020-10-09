@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailTweet">
+
+    <ImageView
+        android:id="@+id/detailImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/detailName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/detailImage"
+
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/detailBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/detailName"
+        android:autoLink="all"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_toRightOf="@+id/detailImage"
+
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/detailTimeago"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+    <ImageView
+        android:id="@+id/emImage"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/detailImage"
+        android:layout_centerHorizontal="true"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <VideoView
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/emImage"
+        android:id="@+id/video_player_1"
+        android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        />
+
+
+</RelativeLayout>
