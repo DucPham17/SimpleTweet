@@ -1,14 +1,17 @@
 package com.codepath.apps.restclienttemplate;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 
@@ -18,6 +21,7 @@ import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -26,6 +30,8 @@ import java.util.List;
 import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
+    public static final int REQUEST_CODE = 20;
+
     Toolbar toolbar;
     public static final String TAG = "TimelineActivity";
     TwitterClient client;
@@ -71,6 +77,7 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.twitter);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+
     }
 
     private void populateHomeTimeline(){
@@ -128,5 +135,26 @@ public class TimelineActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.login, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(item.getItemId() == R.id.miCompose){
+            Intent intent = new Intent(this,ComposeTweet.class);
+            startActivityForResult(intent,REQUEST_CODE);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK){
+            Tweet tempTweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+            tweets.add(0,tempTweet);
+            tweetAdapter.notifyDataSetChanged();
+            recyclerView.smoothScrollToPosition(0);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
