@@ -7,16 +7,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.models.TweetDao;
+import com.codepath.apps.restclienttemplate.models.TweetWithUser;
+import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,18 +47,31 @@ public class TimelineActivity extends AppCompatActivity {
     List<Tweet> tweets;
     SwipeRefreshLayout swipeContainer;
     EndlessRecyclerViewScrollListener endlessRecyclerViewScrollListener;
-    long max = Long.MAX_VALUE;
+    TweetDao tweetDao;
+    FloatingActionButton floatingActionButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
         toolbar = findViewById(R.id.toolbar);
         client = TwitterApp.getRestClient(this);
+        floatingActionButton = findViewById(R.id.floatingButton);
+        tweetDao = ((TwitterApp) getApplicationContext()).getMyDatabase().tweetDao();
+
         recyclerView = findViewById(R.id.rvTweets);
         tweets = new ArrayList<>();
-        tweetAdapter = new TweetAdapter(TimelineActivity.this,tweets);
+        tweetAdapter = new TweetAdapter(TimelineActivity.this,tweets,client);
         recyclerView.setAdapter(tweetAdapter);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TimelineActivity.this);
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TimelineActivity.this,ComposeTweet.class);
+                startActivityForResult(intent,REQUEST_CODE);
+            }
+        });
 
         recyclerView.setLayoutManager(linearLayoutManager);
         swipeContainer = findViewById(R.id.swipeContainer);
@@ -65,7 +85,7 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        populateHomeTimeline();
+
         endlessRecyclerViewScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -78,6 +98,18 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.twitter);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("Show data based","showing data from database");
+                List<TweetWithUser> tweetWithUsers = tweetDao.recentItems();
+                List<Tweet> list = TweetWithUser.getTweetWithUser(tweetWithUsers);
+                tweets.clear();
+                tweets.addAll(list);
+                tweetAdapter.notifyDataSetChanged();
+            }
+        });
+        populateHomeTimeline();
     }
 
     private void populateHomeTimeline(){
@@ -89,10 +121,19 @@ public class TimelineActivity extends AppCompatActivity {
                 JSONArray jsonArray = json.jsonArray;
                 try {
                     Log.d(TAG,"load data" + jsonArray.length());
-                    List<Tweet> temp = Tweet.fromJsonArray(jsonArray);
-                    tweets.addAll(temp);
+                    final List<Tweet> tweetFromNetwork = Tweet.fromJsonArray(jsonArray);
+                    tweets.addAll(tweetFromNetwork);
                     tweetAdapter.notifyDataSetChanged();
                     swipeContainer.setRefreshing(false);
+                    AsyncTask.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("Show data based","showing data into database");
+                            List<User> usersFromNetwork = User.fromJsonTweetArray(tweetFromNetwork);
+                            tweetDao.insertModel(usersFromNetwork.toArray(new User[0]));
+                            tweetDao.insertModel(tweetFromNetwork.toArray(new Tweet[0]));
+                        }
+                    });
                 } catch (JSONException e) {
                     Log.d(TAG,"cant load data");
                     e.printStackTrace();

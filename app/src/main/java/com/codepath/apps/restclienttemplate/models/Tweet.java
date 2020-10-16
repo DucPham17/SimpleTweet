@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import org.json.JSONArray;
@@ -14,34 +16,42 @@ import org.parceler.Parcel;
 import java.util.ArrayList;
 import java.util.List;
 @Parcel
-
+@Entity(foreignKeys = @ForeignKey(entity = User.class, parentColumns = "idUser", childColumns = "userId"))
 public class Tweet {
-
-    public String body;
-
-
-    public String createdAt;
-
-
-    public User user;
-
-
+    @ColumnInfo
+    @PrimaryKey
     public long id;
 
+    @ColumnInfo
+    public String body;
 
+    @ColumnInfo
+    public String createdAt;
+
+    @Ignore
+    public User user;
+
+    @ColumnInfo
     public String emUrl;
 
-
+    @ColumnInfo
     public String videoUrl;
+
+    @ColumnInfo
+    public long userId;
+
+    @ColumnInfo
+    public boolean retweeted;
 
     public Tweet(){}
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
-
         tweet.id = Long.parseLong(jsonObject.getString("id_str"));
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"),tweet.id);
+        tweet.retweeted = jsonObject.getBoolean("retweeted");
+        tweet.userId = tweet.user.idUser;
         if(!jsonObject.getJSONObject("entities").isNull("media")){
             //Log.d("data",String.valueOf(jsonObject.getJSONObject("entities").getJSONArray("media")));
             tweet.emUrl = jsonObject.getJSONObject("entities").getJSONArray("media").getJSONObject(0).getString("media_url");
@@ -72,8 +82,6 @@ public class Tweet {
             list.add(temp);
 
         }
-
-
         return list;
     }
 }

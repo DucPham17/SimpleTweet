@@ -67,5 +67,20 @@
         android:layout_centerHorizontal="true"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <ImageView
+        android:id="@+id/reTweet"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_below="@+id/embedImageScreen"
+        android:layout_marginLeft="30dp"
+        tools:srcCompat="@tools:sample/avatars" />
+    <ImageView
+        android:id="@+id/reply"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_below="@+id/embedImageScreen"
+        android:layout_marginLeft="60dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
 
 </RelativeLayout>
